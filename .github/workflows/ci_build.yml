@@ -67,12 +67,10 @@ jobs:
 
       - name: Create Sign File
         run: |
-          touch signing.properties
-          echo storeFile=../keystore.jks >> signing.properties
-          echo storePassword=${{ secrets.KEY_STORE_PASSWORD }} >> signing.properties
-          echo keyAlias=${{ secrets.KEY_ALIAS }} >> signing.properties
-          echo keyPassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-          echo ${{ secrets.KEY_DATA }} | base64 --decode > keystore.jks
+          keytool -genkey -v -keystore keystore.jks -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias debug -storepass android -keypass android \
+            -dname "CN=FoldDevtools, OU=Debug, O=Local, L=Local, ST=Local, C=CN"
+          printf 'storeFile=../keystore.jks\nstorePassword=android\nkeyAlias=debug\nkeyPassword=android\n' > signing.properties
 
       - name: Build App Release
         run: |
