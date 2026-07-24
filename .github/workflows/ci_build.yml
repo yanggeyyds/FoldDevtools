@@ -18,18 +18,36 @@ jobs:
           fetch-depth: 0
           submodules: true
 
+      - name: Resolve devtools-frontend git hash
+        id: frontend_hash
+        run: |
+          # 不 clone，直接用 git ls-remote 拿 devtools-frontend 最新 commit hash
+          # 作为缓存 key：上游不变 → 命中缓存 → 跳过 14 分钟编译
+          HASH=$(git ls-remote https://chromium.googlesource.com/devtools/devtools-frontend HEAD | awk '{print $1}')
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Resolved devtools-frontend HEAD: $HASH"
+
+      - name: Cache devtools-frontend assets
+        id: frontend_cache
+        uses: actions/cache@v4
+        with:
+          path: app/src/main/assets/devtools-frontend
+          key: devtools-frontend-${{ steps.frontend_hash.outputs.hash }}
 
       - name: Setup depot_tools
+        if: steps.frontend_cache.outputs.cache-hit != 'true'
         run: |
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
           echo "$GITHUB_WORKSPACE/depot_tools" >> $GITHUB_PATH
 
       - name: Checkout devtools-frontend
+        if: steps.frontend_cache.outputs.cache-hit != 'true'
         run: |
           git clone --depth=1 https://chromium.googlesource.com/devtools/devtools-frontend
           gclient config https://chromium.googlesource.com/devtools/devtools-frontend --unmanaged
 
       - name: Build devtools-frontend
+        if: steps.frontend_cache.outputs.cache-hit != 'true'
         run: |
           echo "FRONTEND_GIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
           sed -i 's/is_official_build = false/is_official_build = true/g' build_overrides/BUILDCONFIG.gn
@@ -38,6 +56,7 @@ jobs:
         working-directory: devtools-frontend
 
       - name: Minify devtools-frontend
+        if: steps.frontend_cache.outputs.cache-hit != 'true'
         run: |
           find devtools-frontend/out/Default/gen/front_end -type f \( \
             -name "*.d" -o \
@@ -53,6 +72,9 @@ jobs:
           \) -exec rm -f {} +
           mv devtools-frontend/out/Default/gen/front_end app/src/main/assets/devtools-frontend
 
+      - name: Export frontend hash for summary
+        run: |
+          echo "FRONTEND_GIT_HASH=${{ steps.frontend_hash.outputs.hash }}" >> $GITHUB_ENV
 
       - name: Setup JDK
         uses: actions/setup-java@v5
@@ -90,6 +112,11 @@ jobs:
           echo "### Build Success :rocket:" >> $GITHUB_STEP_SUMMARY
           frontend=(${{ env.FRONTEND_GIT_HASH }})
           echo "Devtools-frontend Git Hash: $frontend" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.frontend_cache.outputs.cache-hit }}" = "true" ]; then
+            echo "devtools-frontend: **cache hit** (跳过编译)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "devtools-frontend: **fresh build** (已写入缓存)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "|ABI|SHA256|" >> $GITHUB_STEP_SUMMARY
           echo "|:--------:|:----------|" >> $GITHUB_STEP_SUMMARY
           release=($(sha256sum ${{ env.APK_FILE_RELEASE }}))

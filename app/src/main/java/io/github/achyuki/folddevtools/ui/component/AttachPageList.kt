@@ -146,7 +146,7 @@ fun AttachPageList(navigator: NavController) {
                             ScreenState.Success(pageList)
                         Log.d(TAG, "pages $pageList")
                     } catch (e: Exception) {
-                        pagesScreenState = ScreenState.Error(e.message ?: "Unknown error")
+                        pagesScreenState = ScreenState.Error(describeDevtoolsError(e, bindPort))
                         Log.w(TAG, e.stackTraceToString())
                     }
                 }
@@ -355,4 +355,33 @@ private fun getEntryArg(urlStr: String): Pair<String, String>? = try {
     entry to query
 } catch (e: Exception) {
     null
+}
+
+/**
+ * 把 DevtoolsClient 的异常翻译成人类可读诊断，辅助用户定位「连接失败」原因。
+ *
+ * 分类：
+ *  - DEVCGET 前缀：HTTP 非 200（桥接到了非 CDP 服务或 Chrome 拒绝）
+ *  - ConnectException / Connection refused：桥接端口未监听
+ *  - SocketTimeoutException：浏览器未响应（后台/锁屏）
+ *  - 其他：原始消息
+ */
+private fun describeDevtoolsError(e: Exception, bindPort: Int): String {
+    val msg = e.message ?: e.javaClass.simpleName
+    return when {
+        msg.startsWith("DEVCGET") -> {
+            // "DEVCGET 404: ..." → 提取状态码
+            val code = msg.substringAfter("DEVCGET ").substringBefore(":").trim()
+            "HTTP $code：桥接到的服务不是 CDP（或 Chrome 拒绝了请求）\n端口 $bindPort"
+        }
+        msg.contains("Connection refused", ignoreCase = true) ||
+        e is java.net.ConnectException ->
+            "桥接被拒：127.0.0.1:$bindPort 未监听（DevtoolsService 可能已停止）"
+        e is java.net.SocketTimeoutException ->
+            "请求超时：浏览器未在预期时间内响应（可能已后台/锁屏/被冻结）"
+        msg.contains("CLEARTEXT", ignoreCase = true) ||
+        msg.contains("network security policy", ignoreCase = true) ->
+            "明文 HTTP 被网络安全策略拦截（需配置 cleartext）"
+        else -> msg
+    }
 }

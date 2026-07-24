@@ -84,7 +84,16 @@ object DevtoolsWindow {
     private fun initial() {
         windowState = WindowState.NORMAL
         screenSize = Size(0.dp, 0.dp)
-        normalSize = Size(400.dp, 350.dp)
+        // 默认尺寸：占屏幕宽度的 90%，高度的 60%，最小不低于 360x400
+        val dm = Resources.getSystem().displayMetrics
+        val screenW = dm.widthPixels
+        val screenH = dm.heightPixels
+        val defaultW = minOf((screenW * 0.9).toInt(), 800 * Size.density.toInt())
+        val defaultH = minOf((screenH * 0.6).toInt(), 600 * Size.density.toInt())
+        normalSize = Size.fromPx(
+            maxOf(defaultW, (360 * Size.density).toInt()),
+            maxOf(defaultH, (400 * Size.density).toInt())
+        )
     }
 
     fun launch(context: Context, windowTitle: String) {
@@ -116,7 +125,9 @@ object DevtoolsWindow {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START // 左上角坐标原点
-            y = 200
+            // 水平居中，垂直偏上
+            x = (screenSize.wPx - normalSize.wPx) / 2
+            y = (screenSize.hPx - normalSize.hPx) / 4
         }
         composeView = ComposeView(context).apply {
             setViewTreeLifecycleOwner(CustomLifecycleOwner())
@@ -205,7 +216,12 @@ object DevtoolsWindow {
 
     @Composable
     private fun NormalWindow(windowTitleStr: String, visible: Boolean) {
-        Card {
+        Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -223,10 +239,11 @@ object DevtoolsWindow {
                     }
             ) {
                 Column {
+                    // 标题栏：增高至 36dp，圆角，Material 图标按钮
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(24.dp)
+                            .height(36.dp)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .pointerInput(Unit) {
                                 detectDragGestures { change, dragAmount ->
@@ -235,28 +252,42 @@ object DevtoolsWindow {
                                     params.y += dragAmount.y.toInt()
                                     updateWindowLayout()
                                 }
-                            }
+                            },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             windowTitle,
                             modifier = Modifier
-                                .padding(start = 10.dp)
+                                .padding(start = 12.dp)
                                 .weight(1f),
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-
+                        // 最小化按钮
                         Box(
                             modifier = Modifier
-                                .padding(end = 10.dp)
+                                .size(36.dp)
                                 .combinedClickable(
                                     onClick = { toggleWindowState() },
                                     onLongClick = { close() }
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("⚫", fontSize = 14.sp)
+                            Text("—", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        // 关闭按钮
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .combinedClickable(
+                                    onClick = { close() },
+                                    onLongClick = { close() }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("✕", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
                         }
                     }
 
@@ -286,21 +317,23 @@ object DevtoolsWindow {
                         }
                     }
                 }
+                // 右下角缩放手柄：增大触摸区域
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
+                        .size(24.dp)
                         .pointerInput(Unit) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
                                 normalSize.wPx =
-                                    (normalSize.wPx + dragAmount.x.toInt()).coerceAtLeast(400)
-                                normalSize.hPx = (normalSize.hPx + dragAmount.y.toInt()).coerceAtLeast(150)
+                                    (normalSize.wPx + dragAmount.x.toInt()).coerceAtLeast(360)
+                                normalSize.hPx = (normalSize.hPx + dragAmount.y.toInt()).coerceAtLeast(400)
                                 updateWindowLayout()
                             }
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("┛", fontSize = 14.sp)
+                    Text("⇲", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -308,7 +341,12 @@ object DevtoolsWindow {
 
     @Composable
     private fun MinimizedWindow() {
-        Card {
+        Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
             Box(
                 modifier = Modifier
                     .width(minimizedSize.wDp)
@@ -324,7 +362,7 @@ object DevtoolsWindow {
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text("⫹⫺", fontSize = 20.sp)
+                Text("⫹⫺", fontSize = 22.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
     }

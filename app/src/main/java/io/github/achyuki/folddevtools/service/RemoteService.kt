@@ -15,7 +15,7 @@ import java.nio.file.Paths
 import kotlinx.coroutines.*
 
 class RemoteService : IRemoteService.Stub() {
-    // override fun destroy(): Unit = System.exit(0) // For Shizuku
+    override fun destroy(): Unit = System.exit(0) // For Shizuku UserService
     override fun getUid(): Int = Process.myUid()
     override fun getRemoteDevtoolsList(): List<String> {
         val result = mutableListOf<String>()
@@ -70,5 +70,23 @@ class RemoteService : IRemoteService.Stub() {
                 Log.e(TAG, e.stackTraceToString())
             }
         }
+    }
+
+    /**
+     * 探测 abstract socket 是否可连（不传输数据，仅验证 connect 成功）。
+     * 返回值：0=可连；-1=连接失败；-2=其他异常。
+     * 用于桥接前快速排除「socket 名存在但对端已死」的残留条目。
+     */
+    override fun probeAbstract(socketName: String): Int = try {
+        LocalSocket().use { s ->
+            s.connect(LocalSocketAddress(socketName, LocalSocketAddress.Namespace.ABSTRACT))
+            0
+        }
+    } catch (e: java.io.IOException) {
+        Log.w(TAG, "probeAbstract @$socketName failed: ${e.message}")
+        -1
+    } catch (e: Exception) {
+        Log.w(TAG, "probeAbstract @$socketName error: ${e.message}")
+        -2
     }
 }
