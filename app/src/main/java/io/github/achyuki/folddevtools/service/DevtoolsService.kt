@@ -179,7 +179,13 @@ class DevtoolsService : Service() {
                 Log.d(TAG, "GET ${headers.getProtocol()[1]}")
                 try {
                     val inputStream = appContext.assets.open("devtools-frontend$path")
-                    val content = inputStream.readBytes()
+                    val rawBytes = inputStream.readBytes()
+                    // HTML 文件注入手机适配 CSS，优化悬浮窗/窄屏体验
+                    val content = if (path.endsWith(".html")) {
+                        injectMobileCss(rawBytes)
+                    } else {
+                        rawBytes
+                    }
 
                     val response = StringBuilder()
                     response.appendLine("$httpVersion 200 OK")
@@ -342,4 +348,81 @@ private val mimeTypes = mapOf(
 fun getMimeType(filename: String): String {
     val extension = filename.substringAfterLast('.').lowercase()
     return mimeTypes[extension] ?: "application/octet-stream"
+}
+
+/**
+ * 手机/悬浮窗适配 CSS：注入到 devtools-frontend 的 HTML 中。
+ *
+ * 目标：让桌面设计的 DevTools 在窄屏（尤其悬浮窗）下可用。
+ * - tab 条横向滚动，避免溢出截断
+ * - 增大触摸目标，减少误触
+ * - 防止页面整体横向溢出
+ * - 适当缩小字号提高信息密度
+ * - viewport meta 强制适配窄屏
+ */
+private val mobileCss = """
+<style id="fold-mobile-adapt">
+/* viewport 适配：禁止缩放，适配窄屏 */
+@viewport { width: device-width; }
+
+/* tab 条横向滚动 */
+[role="tablist"] {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+[role="tab"] {
+    flex-shrink: 0 !important;
+    min-height: 32px !important;
+    padding: 4px 10px !important;
+}
+
+/* 增大工具栏按钮触摸目标 */
+.toolbar-item, .chrome-devtools-toolbar-item,
+[role="button"], [role="menuitem"] {
+    min-width: 28px !important;
+    min-height: 28px !important;
+}
+
+/* 防止横向溢出 */
+html, body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+}
+
+/* 信息密度优化：略微缩小默认字号 */
+.root, :host {
+    font-size: 12px !important;
+}
+
+/* 分割线/面板在窄屏下减小最小宽度 */
+.vbox, .hbox {
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+
+/* 滚动条变细适配触屏 */
+::-webkit-scrollbar {
+    width: 4px !important;
+    height: 4px !important;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 2px !important;
+}
+</style>
+""".trimIndent()
+
+/**
+ * 把 [mobileCss] 注入到 HTML 的 </head> 之前；无 </head> 则追加到开头。
+ */
+private fun injectMobileCss(htmlBytes: ByteArray): ByteArray {
+    val html = String(htmlBytes, Charsets.UTF_8)
+    val injected = if (html.contains("</head>", ignoreCase = true)) {
+        html.replace("</head>", "$mobileCss\n</head>", ignoreCase = true)
+    } else {
+        mobileCss + html
+    }
+    return injected.toByteArray(Charsets.UTF_8)
 }
