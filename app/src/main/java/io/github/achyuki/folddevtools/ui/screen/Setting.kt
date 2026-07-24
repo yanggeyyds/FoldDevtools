@@ -55,6 +55,17 @@ fun SettingScreen(navigator: NavController) {
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
             ) {
                 switchPreference(
+                    key = "shizukumode",
+                    defaultValue = false,
+                    title = { Text(text = stringResource(R.string.shizuku_mode)) },
+                    icon = {
+                        Icon(imageVector = Icons.Outlined.VerifiedUser, contentDescription = null)
+                    },
+                    summary = {
+                        Text(text = stringResource(if (it) R.string.shizuku_mode_summary_on else R.string.shizuku_mode_summary_off))
+                    }
+                )
+                switchPreference(
                     key = "rootmode",
                     defaultValue = true,
                     title = { Text(text = stringResource(R.string.root_mode)) },

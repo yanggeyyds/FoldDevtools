@@ -15,7 +15,7 @@ import java.nio.file.Paths
 import kotlinx.coroutines.*
 
 class RemoteService : IRemoteService.Stub() {
-    // override fun destroy(): Unit = System.exit(0) // For Shizuku
+    override fun destroy(): Unit = System.exit(0) // For Shizuku UserService
     override fun getUid(): Int = Process.myUid()
     override fun getRemoteDevtoolsList(): List<String> {
         val result = mutableListOf<String>()

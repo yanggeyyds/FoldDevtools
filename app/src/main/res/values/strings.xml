@@ -13,6 +13,9 @@
     <string name="root_mode">Root 模式</string>
     <string name="root_mode_summary_on">使用 Root 权限调试本地 WebView</string>
     <string name="root_mode_summary_off">仅通过远程地址调试</string>
+    <string name="shizuku_mode">Shizuku 模式</string>
+    <string name="shizuku_mode_summary_on">通过 Shizuku 调试本地 WebView（无需 Root）</string>
+    <string name="shizuku_mode_summary_off">不使用 Shizuku</string>
     <string name="force_enable_debugging">强制启用调试</string>
     <string name="force_enable_debugging_summary">通过 Xposed Hook 强制启用 WebView 调试</string>
     <string name="devtools_entry_page">Devtools 入口页面</string>
