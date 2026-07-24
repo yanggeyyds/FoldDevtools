@@ -41,49 +41,67 @@ data class RemoteAppInfo(
 @Composable
 fun RemoteAppsList(navigator: NavController, service: IRemoteService) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     var remoteApps by remember { mutableStateOf(emptyList<RemoteAppInfo>()) }
     val packageManager = context.packageManager
     var isForeground = true
 
-    if (remoteApps.size > 0) {
-        LazyColumn(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(remoteApps) {
-                RemoteAppItem(it) {
-                    val bindAddress = preferences.getString("bindaddress", null) ?: "127.0.0.1"
-                    val bindPort = preferences.getInt("bindport", 9223)
-                    val useFloat = preferences.getBoolean("localfloat", true)
-                    val title = it.appName ?: it.socketName
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (remoteApps.size > 0) {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(remoteApps) {
+                    RemoteAppItem(it) {
+                        val bindAddress = preferences.getString("bindaddress", null) ?: "127.0.0.1"
+                        val bindPort = preferences.getInt("bindport", 9223)
+                        val useFloat = preferences.getBoolean("localfloat", true)
+                        val title = it.appName ?: it.socketName
 
-                    startDevtoolsService(context = context, bindHost = bindAddress, bindPort = bindPort, socket = it.socketName)
-                    if (useFloat) {
-                        it.packageName?.let {
-                            runCatching {
-                                val intent = context.packageManager.getLaunchIntentForPackage(it)
-                                intent?.let { context.startActivity(it) }
+                        // 桥接前探测 abstract socket 是否可连，避免「检测到但连不上」的困惑
+                        scope.launch(Dispatchers.IO) {
+                            val probe = runCatching { service.probeAbstract(it.socketName) }.getOrDefault(-2)
+                            if (probe != 0) {
+                                snackbarHostState.showSnackbar(
+                                    "探测失败：@${it.socketName} 不可连（浏览器可能已退出或被系统冻结）"
+                                )
+                                return@launch
+                            }
+                            startDevtoolsService(context = context, bindHost = bindAddress, bindPort = bindPort, socket = it.socketName)
+                            if (useFloat) {
+                                it.packageName?.let { pkg ->
+                                    runCatching {
+                                        val intent = context.packageManager.getLaunchIntentForPackage(pkg)
+                                        intent?.let { context.startActivity(it) }
+                                    }
+                                }
+                                DevtoolsWindow.launch(context, title)
+                            } else {
+                                navigator.navigate(Screen.Page.create(title))
                             }
                         }
-                        DevtoolsWindow.launch(context, title)
-                    } else {
-                        navigator.navigate(Screen.Page.create(title))
                     }
                 }
             }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "  -_-#\n${stringResource(R.string.empty)}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize()
-                .padding(horizontal = 32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "  -_-#\n${stringResource(R.string.empty)}",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 
     LaunchedEffect(Unit) {

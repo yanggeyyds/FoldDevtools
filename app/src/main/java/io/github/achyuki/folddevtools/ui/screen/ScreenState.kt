@@ -10,8 +10,7 @@ import androidx.compose.runtime.setValue
 import io.github.achyuki.folddevtools.IRemoteService
 import io.github.achyuki.folddevtools.TAG
 import io.github.achyuki.folddevtools.preferences
-import io.github.achyuki.folddevtools.service.getRemoteRootService
-import io.github.achyuki.folddevtools.service.getShizukuRemoteService
+import io.github.achyuki.folddevtools.service.getActiveRemoteService
 
 var serviceScreenState by mutableStateOf<ScreenState<IRemoteService>>(ScreenState.Loading)
 
@@ -28,10 +27,10 @@ fun loadServiceScreen() {
     LaunchedEffect(shizukuMode, rootMode) {
         serviceScreenState = ScreenState.Loading
         try {
-            serviceScreenState = when {
-                shizukuMode -> ScreenState.Success(getShizukuRemoteService())
-                rootMode -> ScreenState.Success(getRemoteRootService())
-                else -> ScreenState.Error()
+            if (!shizukuMode && !rootMode) {
+                serviceScreenState = ScreenState.Error()
+            } else {
+                serviceScreenState = ScreenState.Success(getActiveRemoteService())
             }
         } catch (e: Exception) {
             serviceScreenState = ScreenState.Error(e.message ?: "Unknown error")

@@ -7,5 +7,6 @@ interface IRemoteService {
     List<String> getRemoteDevtoolsList();
     @nullable String getPackageNameByPid(int pid);
     void bindLocalSocketBridgeAsync(String socketName, in ParcelFileDescriptor bridgeSocket);
+    int probeAbstract(String socketName);
     void destroy();
 }

@@ -109,7 +109,7 @@ class DevtoolsService : Service() {
                 var socketWrap: SocketWrap? = null
                 if (hasBinding) {
                     socketWrap = if (isLocal) {
-                        SocketWrap.fromLocal(getRemoteRootService(), socket)
+                        SocketWrap.fromLocal(getActiveRemoteService(), socket)
                     } else {
                         SocketWrap.fromRemote(host!!, port)
                     }

@@ -43,6 +43,11 @@
     <string name="attached">已附加</string>
     <string name="empty_label">空白</string>
     <string name="visible">可见</string>
+    <string name="diag_probe_fail">探测失败：abstract socket 不可连（浏览器可能已退出或被系统冻结）</string>
+    <string name="diag_service_unavailable">远端服务未就绪：请确认 Shizuku/Root 已授权且正在运行</string>
+    <string name="diag_bridge_refused">桥接被拒：目标端口 %1$d 被占用或监听未启动</string>
+    <string name="diag_timeout">请求超时：浏览器未在预期时间内响应（可能已后台/锁屏）</string>
+    <string name="diag_retry">重试中…</string>
 
     <!--Remote App List-->
     <string name="unknown">未知</string>
