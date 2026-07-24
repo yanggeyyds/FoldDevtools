@@ -46,7 +46,7 @@ fun MainScreen(navigator: NavController) {
             }
         } else {
             scope.launch {
-                snackbarHostState.showSnackbar("Illegal address")
+                snackbarHostState.showSnackbar(context.getString(R.string.illegal_address))
             }
         }
     }
@@ -68,7 +68,7 @@ fun MainScreen(navigator: NavController) {
                     connectDialog.show = true
                 },
                 icon = { Icon(imageVector = Icons.Filled.Add, contentDescription = null) },
-                text = { Text(text = "Connect") },
+                text = { Text(text = stringResource(R.string.connect)) },
                 modifier = Modifier.padding(bottom = 32.dp)
             )
         },
@@ -101,7 +101,7 @@ fun MainScreen(navigator: NavController) {
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Remote Mode",
+                            text = stringResource(R.string.remote_mode),
                             style = MaterialTheme.typography.titleMedium
                         )
                         if (state.message != null) {

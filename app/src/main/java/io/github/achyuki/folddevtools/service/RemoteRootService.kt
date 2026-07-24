@@ -9,6 +9,7 @@ import com.topjohnwu.superuser.NoShellException
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
 import io.github.achyuki.folddevtools.IRemoteService
+import io.github.achyuki.folddevtools.R
 import io.github.achyuki.folddevtools.TAG
 import io.github.achyuki.folddevtools.appContext
 import kotlin.coroutines.resume
@@ -44,7 +45,7 @@ suspend fun getRemoteRootService(): IRemoteService = mutex.withLock {
                             } else {
                                 continuation.resumeWithException(
                                     RemoteServiceException(
-                                        "Root invalid binder"
+                                        appContext.getString(R.string.root_invalid_binder)
                                     )
                                 )
                             }
@@ -55,7 +56,7 @@ suspend fun getRemoteRootService(): IRemoteService = mutex.withLock {
                             if (continuation.isActive) {
                                 continuation.resumeWithException(
                                     RemoteServiceException(
-                                        "Root service disconnected"
+                                        appContext.getString(R.string.root_service_disconnected)
                                     )
                                 )
                             }
@@ -65,7 +66,7 @@ suspend fun getRemoteRootService(): IRemoteService = mutex.withLock {
                             remoteServiceCached = null
                             if (continuation.isActive) {
                                 continuation.resumeWithException(
-                                    RemoteServiceException("Root binding died")
+                                    RemoteServiceException(appContext.getString(R.string.root_binding_died))
                                 )
                             }
                         }
@@ -74,7 +75,7 @@ suspend fun getRemoteRootService(): IRemoteService = mutex.withLock {
                             remoteServiceCached = null
                             if (continuation.isActive) {
                                 continuation.resumeWithException(
-                                    RemoteServiceException("Root binding is null")
+                                    RemoteServiceException(appContext.getString(R.string.root_binding_is_null))
                                 )
                             }
                         }

@@ -16,12 +16,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil3.compose.SubcomposeAsyncImage
+import io.github.achyuki.folddevtools.R
 import io.github.achyuki.folddevtools.TAG
 import io.github.achyuki.folddevtools.core.DevtoolsClient
 import io.github.achyuki.folddevtools.core.PageInfo
@@ -98,7 +100,7 @@ fun AttachPageList(navigator: NavController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "  -_-#\nEmpty",
+                        text = "  -_-#\n${stringResource(R.string.empty)}",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -112,7 +114,7 @@ fun AttachPageList(navigator: NavController) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Connection interrupted",
+                        text = stringResource(R.string.connection_interrupted),
                         style = MaterialTheme.typography.titleMedium
                     )
                     if (state.message != null) {
@@ -242,7 +244,7 @@ fun AttachPageItem(pageInfo: PageInfo, devtoolsClient: DevtoolsClient, onClick: 
                             )
                         ) {
                             Text(
-                                text = "attached",
+                                text = stringResource(R.string.attached),
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.bodySmall
@@ -257,7 +259,7 @@ fun AttachPageItem(pageInfo: PageInfo, devtoolsClient: DevtoolsClient, onClick: 
                             )
                         ) {
                             Text(
-                                text = "empty",
+                                text = stringResource(R.string.empty_label),
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.bodySmall
@@ -272,7 +274,7 @@ fun AttachPageItem(pageInfo: PageInfo, devtoolsClient: DevtoolsClient, onClick: 
                             )
                         ) {
                             Text(
-                                text = "visible",
+                                text = stringResource(R.string.visible),
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.bodySmall

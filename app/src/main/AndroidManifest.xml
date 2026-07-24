@@ -43,7 +43,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Force enable WebView debugging" />
+            android:value="强制启用 WebView 调试" />
         <meta-data 
             android:name="xposedminversion"     
             android:value="54" />

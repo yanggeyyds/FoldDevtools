@@ -7,6 +7,8 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import io.github.achyuki.folddevtools.R
 import io.github.achyuki.folddevtools.TAG
 import java.net.URI
 
@@ -20,12 +22,12 @@ class ConnectDialog {
 
         AlertDialog(
             onDismissRequest = { show = false },
-            title = { Text("Remote") },
+            title = { Text(stringResource(R.string.remote)) },
             text = {
                 OutlinedTextField(
                     value = address,
                     singleLine = true,
-                    label = { Text("Address") },
+                    label = { Text(stringResource(R.string.address)) },
                     onValueChange = { address = it },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -38,14 +40,14 @@ class ConnectDialog {
                     },
                     enabled = address.isNotBlank()
                 ) {
-                    Text("Connect")
+                    Text(stringResource(R.string.connect))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     show = false
                 }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

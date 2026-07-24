@@ -13,6 +13,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import me.zhanghai.compose.preference.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(navigator: NavController) {
+    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val scope = rememberCoroutineScope()
@@ -55,23 +57,23 @@ fun SettingScreen(navigator: NavController) {
                 switchPreference(
                     key = "rootmode",
                     defaultValue = true,
-                    title = { Text(text = "Root mode") },
+                    title = { Text(text = stringResource(R.string.root_mode)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.Layers, contentDescription = null)
                     },
                     summary = {
-                        Text(text = if (it) "Debug local WebView with root access" else "Debug only through remote access")
+                        Text(text = stringResource(if (it) R.string.root_mode_summary_on else R.string.root_mode_summary_off))
                     }
                 )
                 switchPreference(
                     key = "xphook",
                     defaultValue = true,
-                    title = { Text(text = "Force enable debugging") },
+                    title = { Text(text = stringResource(R.string.force_enable_debugging)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.Healing, contentDescription = null)
                     },
                     summary = {
-                        Text(text = "Force-enable WebView debugging through xposed hook")
+                        Text(text = stringResource(R.string.force_enable_debugging_summary))
                     }
                 )
                 val pages = listOf("<AUTO>", "devtools_app", "inspector", "js_app")
@@ -79,7 +81,7 @@ fun SettingScreen(navigator: NavController) {
                     key = "entrypage",
                     defaultValue = pages[0],
                     values = pages,
-                    title = { Text(text = "Devtools entry page") },
+                    title = { Text(text = stringResource(R.string.devtools_entry_page)) },
                     icon = {
                         Icon(imageVector = Icons.AutoMirrored.Outlined.Article, contentDescription = null)
                     },
@@ -89,7 +91,7 @@ fun SettingScreen(navigator: NavController) {
                 textFieldPreference(
                     key = "bindaddress",
                     defaultValue = "127.0.0.1",
-                    title = { Text(text = "Server binding address") },
+                    title = { Text(text = stringResource(R.string.server_binding_address)) },
                     textToValue = { it },
                     icon = {
                         Icon(imageVector = Icons.Outlined.Link, contentDescription = null)
@@ -99,7 +101,7 @@ fun SettingScreen(navigator: NavController) {
                 textFieldPreference(
                     key = "bindport",
                     defaultValue = 9223,
-                    title = { Text(text = "Server binding port") },
+                    title = { Text(text = stringResource(R.string.server_binding_port)) },
                     textToValue = {
                         try {
                             val port = it.toInt()
@@ -107,7 +109,7 @@ fun SettingScreen(navigator: NavController) {
                             port
                         } catch (_: Exception) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("Illegal port number")
+                                snackbarHostState.showSnackbar(context.getString(R.string.illegal_port_number))
                             }
                             preferences.getInt("bindport", 9223)
                         }
@@ -120,43 +122,43 @@ fun SettingScreen(navigator: NavController) {
                 switchPreference(
                     key = "localfloat",
                     defaultValue = true,
-                    title = { Text(text = "Local floating window") },
+                    title = { Text(text = stringResource(R.string.local_floating_window)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.ContentCopy, contentDescription = null)
                     },
                     summary = {
-                        Text(text = "Use floating windows for local pages")
+                        Text(text = stringResource(R.string.local_floating_window_summary))
                     }
                 )
                 switchPreference(
                     key = "remotefloat",
                     defaultValue = false,
-                    title = { Text(text = "Remote floating window") },
+                    title = { Text(text = stringResource(R.string.remote_floating_window)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.ContentCopy, contentDescription = null)
                     },
                     summary = {
-                        Text(text = "Use floating windows for remote pages")
+                        Text(text = stringResource(R.string.remote_floating_window_summary))
                     }
                 )
                 switchPreference(
                     key = "extbrowser",
                     defaultValue = false,
-                    title = { Text(text = "External browser") },
+                    title = { Text(text = stringResource(R.string.external_browser)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.ArrowOutward, contentDescription = null)
                     },
                     summary = {
-                        Text(text = "Open devtools using the external browser")
+                        Text(text = stringResource(R.string.external_browser_summary))
                     }
                 )
                 preference(
                     key = "github",
-                    title = { Text(text = "GitHub") },
+                    title = { Text(text = stringResource(R.string.github)) },
                     icon = {
                         Icon(imageVector = Icons.Outlined.Code, contentDescription = null)
                     },
-                    summary = { Text(text = "Review the source code or report issues") }
+                    summary = { Text(text = stringResource(R.string.github_summary)) }
                 ) {
                     uriHandler.openUri("https://github.com/achyuki/FoldDevtools")
                 }

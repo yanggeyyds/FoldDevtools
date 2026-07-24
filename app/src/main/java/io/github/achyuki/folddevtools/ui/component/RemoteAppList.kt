@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
@@ -20,6 +21,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import io.github.achyuki.folddevtools.IRemoteService
+import io.github.achyuki.folddevtools.R
 import io.github.achyuki.folddevtools.TAG
 import io.github.achyuki.folddevtools.preferences
 import io.github.achyuki.folddevtools.service.startDevtoolsService
@@ -78,7 +80,7 @@ fun RemoteAppsList(navigator: NavController, service: IRemoteService) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "  -_-#\nEmpty",
+                text = "  -_-#\n${stringResource(R.string.empty)}",
                 style = MaterialTheme.typography.titleMedium
             )
         }
@@ -187,11 +189,11 @@ fun RemoteAppItem(appInfo: RemoteAppInfo, onClick: (appInfo: RemoteAppInfo) -> U
                         .weight(1f)
                 ) {
                     Text(
-                        text = appInfo.appName ?: "Unknown",
+                        text = appInfo.appName ?: stringResource(R.string.unknown),
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
-                        text = appInfo.packageName ?: "Unknown",
+                        text = appInfo.packageName ?: stringResource(R.string.unknown),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
@@ -200,7 +202,7 @@ fun RemoteAppItem(appInfo: RemoteAppInfo, onClick: (appInfo: RemoteAppInfo) -> U
                         text = if (appInfo.pid != null) {
                             "PID: ${appInfo.pid}"
                         } else if (appInfo.packageName != null) {
-                            "Stetho"
+                            stringResource(R.string.stetho)
                         } else {
                             "Socket: ${appInfo.socketName}"
                         },

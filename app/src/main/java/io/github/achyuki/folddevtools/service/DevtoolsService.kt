@@ -80,9 +80,13 @@ class DevtoolsService : Service() {
         val isRemote = host != null
         val hasBinding = isLocal or isRemote
 
-        var notice = "Running on $bindHost:$bindPort"
+        var notice = getString(R.string.running_on, bindHost, bindPort)
         if (hasBinding) {
-            notice += "\nBound " + if (isLocal) "@$socket" else "$host:$port"
+            notice += "\n" + if (isLocal) {
+                getString(R.string.bound_local, socket)
+            } else {
+                getString(R.string.bound_remote, host, port)
+            }
         }
         val notification = createNotification(notice)
         ServiceCompat.startForeground(
@@ -252,7 +256,7 @@ class DevtoolsService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Service",
+                appContext.getString(R.string.service),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 // description = ""
@@ -276,14 +280,14 @@ class DevtoolsService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Devtools Service")
+            .setContentTitle(getString(R.string.devtools_service))
             .setContentText(content)
             .setSmallIcon(R.drawable.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .addAction(
                 0,
-                "Stop",
+                getString(R.string.stop),
                 stopPendingIntent
             )
             .build()

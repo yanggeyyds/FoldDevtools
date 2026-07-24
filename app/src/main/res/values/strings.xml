@@ -2,6 +2,61 @@
 <resources>
     <!--Activity-->
     <string name="app_name">FoldDevtools</string>
-    <string name="settings">Settings</string>
+    <string name="settings">设置</string>
+
+    <!--Main Screen-->
+    <string name="connect">连接</string>
+    <string name="remote_mode">远程模式</string>
+    <string name="illegal_address">地址无效</string>
+
+    <!--Setting Screen-->
+    <string name="root_mode">Root 模式</string>
+    <string name="root_mode_summary_on">使用 Root 权限调试本地 WebView</string>
+    <string name="root_mode_summary_off">仅通过远程地址调试</string>
+    <string name="force_enable_debugging">强制启用调试</string>
+    <string name="force_enable_debugging_summary">通过 Xposed Hook 强制启用 WebView 调试</string>
+    <string name="devtools_entry_page">Devtools 入口页面</string>
+    <string name="server_binding_address">服务器绑定地址</string>
+    <string name="server_binding_port">服务器绑定端口</string>
+    <string name="illegal_port_number">端口号无效</string>
+    <string name="local_floating_window">本地悬浮窗</string>
+    <string name="local_floating_window_summary">本地页面使用悬浮窗显示</string>
+    <string name="remote_floating_window">远程悬浮窗</string>
+    <string name="remote_floating_window_summary">远程页面使用悬浮窗显示</string>
+    <string name="external_browser">外部浏览器</string>
+    <string name="external_browser_summary">使用外部浏览器打开 Devtools</string>
+    <string name="github">GitHub</string>
+    <string name="github_summary">查看源码或反馈问题</string>
+
+    <!--Connect Dialog-->
+    <string name="remote">远程</string>
+    <string name="address">地址</string>
+    <string name="cancel">取消</string>
+
+    <!--Attach Page List-->
+    <string name="empty">空空如也</string>
+    <string name="connection_interrupted">连接已断开</string>
+    <string name="unknown_error">未知错误</string>
+    <string name="attached">已附加</string>
+    <string name="empty_label">空白</string>
+    <string name="visible">可见</string>
+
+    <!--Remote App List-->
+    <string name="unknown">未知</string>
+    <string name="stetho">Stetho</string>
+
+    <!--Devtools Service Notification-->
+    <string name="devtools_service">Devtools 服务</string>
+    <string name="service">服务</string>
+    <string name="running_on">运行于 %1$s:%2$d</string>
+    <string name="bound_local">已绑定 @%1$s</string>
+    <string name="bound_remote">已绑定 %1$s:%2$d</string>
+    <string name="stop">停止</string>
+
+    <!--Root Service Errors-->
+    <string name="root_invalid_binder">Root Binder 无效</string>
+    <string name="root_service_disconnected">Root 服务已断开</string>
+    <string name="root_binding_died">Root 绑定已失效</string>
+    <string name="root_binding_is_null">Root 绑定为空</string>
 
 </resources>
